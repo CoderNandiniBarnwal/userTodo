@@ -1,7 +1,8 @@
 import userSchema from "../model/userSchema.js";
-import bcrypt from 'bcrypt'
-import jwt  from "jsonwebtoken";
-import dotenv from 'dotenv/config'
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import dotenv from "dotenv/config";
+import { verifyEmail } from "../emailVerify/verifyMail.js";
 
 export const register = async (req, res) => {
   try {
@@ -13,14 +14,19 @@ export const register = async (req, res) => {
         message: "User already registered",
       });
     }
-    const hashPassword = await bcrypt.hash(password, 10)
-    const data = await userSchema.create({ userName, email, password:hashPassword });
-    const token = jwt.sign({email}, process.env.secretKey, {
-        expiresIn: '5m'
-    })
+    const hashPassword = await bcrypt.hash(password, 10);
+    const data = await userSchema.create({
+      userName,
+      email,
+      password: hashPassword,
+    });
+    const token = jwt.sign({ id: data._id }, process.env.secretKey, {
+      expiresIn: "5m",
+    });
 
-    data.token = token
-    await data.save()
+    verifyEmail(token, email);
+    data.token = token;
+    await data.save();
 
     return res.status(201).json({
       success: true,

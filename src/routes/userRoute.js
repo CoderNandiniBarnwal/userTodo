@@ -1,8 +1,10 @@
-import express from 'express'
-import { register } from '../controller/userController.js'
+import express from "express";
+import { register } from "../controller/userController.js";
+import { verifyToken } from "../middleware/verifyToken.js";
 
-const userRoute = express.Router()
+const userRoute = express.Router();
 
-userRoute.post('/register', register)
+userRoute.post("/register", register);
+userRoute.get("/verify", verifyToken);
 
-export default userRoute
+export default userRoute;
